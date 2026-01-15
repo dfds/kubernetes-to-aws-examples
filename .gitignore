@@ -39,3 +39,4 @@ terraform.rc
 # Special cases
 backend.tf
 .terraform.lock.hcl
+.env

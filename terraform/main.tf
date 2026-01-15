@@ -6,12 +6,8 @@ provider "aws" {
     }
 }
 
-locals {
-    capability_access_role_name = "CapabilityAccessFromKubernetes"
-}
-
 data "aws_iam_role" "capability_access_role" {
-    name = local.capability_access_role_name
+    name = "CapabilityAccessFromKubernetes"
 }
 
 resource "aws_iam_policy" "rds_connect_policy" {
@@ -81,4 +77,13 @@ resource "aws_iam_role_policy_attachment" "ssm_access" {
 resource "aws_iam_role_policy_attachment" "s3_access" {
   role       = data.aws_iam_role.capability_access_role.name
   policy_arn = aws_iam_policy.s3_access_policy.arn
+}
+
+locals {
+    service_account_for_service_1 = "capability-access-service-1"
+}
+
+resource "aws_iam_role" "my_role_1" {
+  name               = "my-role-for-service-1"
+  assume_role_policy = replace(data.aws_iam_role.capability_access_role.assume_role_policy, "capability-access", local.service_account_for_service_1)
 }
