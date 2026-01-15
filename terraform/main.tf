@@ -50,6 +50,14 @@ resource "aws_iam_policy" "ssm_access_policy" {
     })
 }
 
+resource "aws_iam_policy" "s3_access_policy" {
+    name        = "${var.prefix}-s3-access-policy"
+    description = "Policy to allow S3 access for capability access role"
+    policy      = templatefile("${path.module}/iam/policies/s3-access.json", {
+        s3_bucket_name  = var.s3_bucket_name
+    })
+}
+
 resource "aws_iam_role_policy_attachment" "rds_connect" {
   role       = data.aws_iam_role.capability_access_role.name
   policy_arn = aws_iam_policy.rds_connect_policy.arn
@@ -68,4 +76,9 @@ resource "aws_iam_role_policy_attachment" "secretsmanager_access" {
 resource "aws_iam_role_policy_attachment" "ssm_access" {
   role       = data.aws_iam_role.capability_access_role.name
   policy_arn = aws_iam_policy.ssm_access_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_access" {
+  role       = data.aws_iam_role.capability_access_role.name
+  policy_arn = aws_iam_policy.s3_access_policy.arn
 }
