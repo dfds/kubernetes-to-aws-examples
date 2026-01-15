@@ -1,0 +1,17 @@
+{
+    "Statement": [
+        {
+            "Action": "rds:DescribeDBInstances",
+            "Effect": "Allow",
+            "Resource": "arn:aws:rds:${aws_region}:${account_id}:db:*",
+            "Sid": "DiscoverInstances"
+        },
+        {
+            "Action": "rds:DescribeDBProxies",
+            "Effect": "Allow",
+            "Resource": "arn:aws:rds:${aws_region}:${account_id}:db-proxy:*",
+            "Sid": "DiscoverProxies"
+        }
+    ],
+    "Version": "2012-10-17"
+}

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-irsa
+  namespace: <capability-namespace>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-irsa
+  template:
+    metadata:
+      labels:
+        app: test-irsa
+    spec:
+      serviceAccountName: capability-access
+      containers:
+        - name: test-irsa
+          image: ghcr.io/avnes/test-irsa:latest
