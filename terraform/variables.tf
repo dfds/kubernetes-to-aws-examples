@@ -25,6 +25,12 @@ variable "s3_bucket_name" {
   description = "The name of the S3 bucket to be used"
 }
 
+variable "ssm_parameters" {
+  type = list(string)
+  description = "A list of SSM parameter paths to be read"
+  default = ["*"]
+}
+
 variable "tags" {
   type        = map(string)
   description = "A map of tags to assign to resources"

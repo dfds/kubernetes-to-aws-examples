@@ -38,12 +38,15 @@ resource "aws_iam_policy" "secretsmanager_access_policy" {
   })
 }
 
+locals {
+  ssm_parameters = formatlist("arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter%s", var.ssm_parameters)
+}
+
 resource "aws_iam_policy" "ssm_access_policy" {
   name        = "${var.prefix}-ssm-access-policy"
   description = "Policy to allow SSM Parameter Store access for capability access role"
   policy = templatefile("${path.module}/iam/policies/ssm-access.json", {
-    aws_region = var.aws_region,
-    account_id = var.account_id
+    ssm_parameters = local.ssm_parameters
   })
 }
 
