@@ -15,6 +15,12 @@ variable "prefix" {
   default     = "k8s-to-aws-examples"
 }
 
+variable "kms_keys" {
+  type = list(string)
+  description = "A list of KMS key IDs to be accessed. Example: ['key-id1', 'key-id2']"
+  default = ["*"]
+}
+
 variable "rds_resource_id" {
   type        = string
   description = "The RDS resource identifier. Example: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
@@ -25,9 +31,15 @@ variable "s3_bucket_name" {
   description = "The name of the S3 bucket to be used. Example: 'myapp-bucket'"
 }
 
+variable "secretsmanager_secret_names" {
+  type = list(string)
+  description = "A list of Secrets Manager secret names to be accessed. Example: ['secret-name1', 'secret-name2']"
+  default = ["*"]
+}
+
 variable "ssm_parameters" {
   type = list(string)
-  description = "A list of SSM parameter paths to be read. Example: ['/myapp/db/password', '/myapp/db/username']"
+  description = "A list of SSM parameter paths to be accessed. Example: ['/myapp/db/password', '/myapp/db/username']"
   default = ["*"]
 }
 

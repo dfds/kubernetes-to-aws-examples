@@ -29,12 +29,18 @@ resource "aws_iam_policy" "rds_discovery_policy" {
   })
 }
 
+locals {
+  secretsmanager_arns = formatlist("arn:aws:secretsmanager:${var.aws_region}:${var.account_id}:secret:%s", var.secretsmanager_secret_names)
+  kms_keys_arns       = formatlist("arn:aws:kms:${var.aws_region}:${var.account_id}:key/%s", var.kms_keys)
+}
+
 resource "aws_iam_policy" "secretsmanager_access_policy" {
   name        = "${var.prefix}-secretsmanager-access-policy"
   description = "Policy to allow Secrets Manager access for capability access role"
   policy = templatefile("${path.module}/iam/policies/secretsmanager-access.json", {
-    aws_region = var.aws_region,
-    account_id = var.account_id
+    secretsmanager_arns = local.secretsmanager_arns
+    kms_keys_arns       = local.kms_keys_arns
+    aws_region          = var.aws_region
   })
 }
 
