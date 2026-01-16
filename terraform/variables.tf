@@ -15,6 +15,11 @@ variable "prefix" {
   default     = "k8s-to-aws-examples"
 }
 
+variable "rds_resource_id" {
+  type        = string
+  description = "The RDS resource identifier"
+}
+
 variable "s3_bucket_name" {
   type        = string
   description = "The name of the S3 bucket to be used"

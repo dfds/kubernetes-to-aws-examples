@@ -3,7 +3,7 @@
         {
             "Action": "rds-db:connect",
             "Effect": "Allow",
-            "Resource": "arn:aws:rds-db:${aws_region}:${account_id}:dbuser:db-*/*",
+            "Resource": "arn:aws:rds-db:${aws_region}:${account_id}:dbuser:db-${rds_resource_id}/*",
             "Sid": "Connect"
         }
     ],

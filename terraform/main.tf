@@ -1,57 +1,58 @@
 provider "aws" {
-    region = var.aws_region
+  region = var.aws_region
 
-    default_tags {
-        tags = var.tags
-    }
+  default_tags {
+    tags = var.tags
+  }
 }
 
 data "aws_iam_role" "capability_access_role" {
-    name = "CapabilityAccessFromKubernetes"
+  name = "CapabilityAccessFromKubernetes"
 }
 
 resource "aws_iam_policy" "rds_connect_policy" {
-    name        = "${var.prefix}-rds-connect-policy"
-    description = "Policy to allow RDS connectivity for capability access role"
-    policy      = templatefile("${path.module}/iam/policies/rds-connect.json", {
-        aws_region          = var.aws_region,
-        account_id = var.account_id
-    })
+  name        = "${var.prefix}-rds-connect-policy"
+  description = "Policy to allow RDS connectivity for capability access role"
+  policy = templatefile("${path.module}/iam/policies/rds-connect.json", {
+    aws_region      = var.aws_region,
+    account_id      = var.account_id
+    rds_resource_id = var.rds_resource_id
+  })
 }
 
 resource "aws_iam_policy" "rds_discovery_policy" {
-    name        = "${var.prefix}-rds-discovery-policy"
-    description = "Policy to allow RDS discovery for capability access role"
-    policy      = templatefile("${path.module}/iam/policies/rds-discovery.json", {
-        aws_region          = var.aws_region,
-        account_id = var.account_id
-    })
+  name        = "${var.prefix}-rds-discovery-policy"
+  description = "Policy to allow RDS discovery for capability access role"
+  policy = templatefile("${path.module}/iam/policies/rds-discovery.json", {
+    aws_region = var.aws_region,
+    account_id = var.account_id
+  })
 }
 
 resource "aws_iam_policy" "secretsmanager_access_policy" {
-    name        = "${var.prefix}-secretsmanager-access-policy"
-    description = "Policy to allow Secrets Manager access for capability access role"
-    policy      = templatefile("${path.module}/iam/policies/secretsmanager-access.json", {
-        aws_region          = var.aws_region,
-        account_id = var.account_id
-    })
+  name        = "${var.prefix}-secretsmanager-access-policy"
+  description = "Policy to allow Secrets Manager access for capability access role"
+  policy = templatefile("${path.module}/iam/policies/secretsmanager-access.json", {
+    aws_region = var.aws_region,
+    account_id = var.account_id
+  })
 }
 
 resource "aws_iam_policy" "ssm_access_policy" {
-    name        = "${var.prefix}-ssm-access-policy"
-    description = "Policy to allow SSM Parameter Store access for capability access role"
-    policy      = templatefile("${path.module}/iam/policies/ssm-access.json", {
-        aws_region          = var.aws_region,
-        account_id = var.account_id
-    })
+  name        = "${var.prefix}-ssm-access-policy"
+  description = "Policy to allow SSM Parameter Store access for capability access role"
+  policy = templatefile("${path.module}/iam/policies/ssm-access.json", {
+    aws_region = var.aws_region,
+    account_id = var.account_id
+  })
 }
 
 resource "aws_iam_policy" "s3_access_policy" {
-    name        = "${var.prefix}-s3-access-policy"
-    description = "Policy to allow S3 access for capability access role"
-    policy      = templatefile("${path.module}/iam/policies/s3-access.json", {
-        s3_bucket_name  = var.s3_bucket_name
-    })
+  name        = "${var.prefix}-s3-access-policy"
+  description = "Policy to allow S3 access for capability access role"
+  policy = templatefile("${path.module}/iam/policies/s3-access.json", {
+    s3_bucket_name = var.s3_bucket_name
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "rds_connect" {
@@ -80,7 +81,7 @@ resource "aws_iam_role_policy_attachment" "s3_access" {
 }
 
 locals {
-    service_account_for_service_1 = "capability-access-service-1"
+  service_account_for_service_1 = "capability-access-service-1"
 }
 
 resource "aws_iam_role" "my_role_1" {

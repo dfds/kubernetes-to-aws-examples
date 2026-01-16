@@ -70,3 +70,15 @@ resource "aws_iam_role" "my_role_1" {
   assume_role_policy = replace(data.aws_iam_role.capability_access_role.assume_role_policy, "capability-access", local.service_account_for_service_1)
 }
 ```
+
+## Variables explained
+
+### prefix
+
+Providing a value for prefix ensure that all your policies gets unique names, and hence you can have several similar, but not identical policies.
+
+### rds_resource_id
+
+An AWS RDS instance has a unique resource id. You can find this value on the RDS instance's Configuration page:
+
+![RDS Instance ID](assets/rds_instance_id.png)
