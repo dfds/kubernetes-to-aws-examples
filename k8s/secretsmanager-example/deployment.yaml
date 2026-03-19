@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-irsa-secretsmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-irsa-secretsmanager
+  template:
+    metadata:
+      labels:
+        app: test-irsa-secretsmanager
+    spec:
+      serviceAccountName: k8s2aws-secretsmanager-sa
+      containers:
+        - name: test-irsa-secretsmanager
+          image: ghcr.io/avnes/test-irsa:latest

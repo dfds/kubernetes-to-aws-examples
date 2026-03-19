@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-irsa-ssm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-irsa-ssm
+  template:
+    metadata:
+      labels:
+        app: test-irsa-ssm
+    spec:
+      serviceAccountName: k8s2aws-ssm-sa
+      containers:
+        - name: test-irsa-ssm
+          image: ghcr.io/avnes/test-irsa:latest

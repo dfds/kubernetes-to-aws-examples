@@ -1,19 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-irsa
-  namespace: <capability-namespace>
+  name: test-irsa-rds
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: test-irsa
+      app: test-irsa-rds
   template:
     metadata:
       labels:
-        app: test-irsa
+        app: test-irsa-rds
     spec:
-      serviceAccountName: capability-access
+      serviceAccountName: k8s2aws-rds-sa
       containers:
-        - name: test-irsa
+        - name: test-irsa-rds
           image: ghcr.io/avnes/test-irsa:latest
