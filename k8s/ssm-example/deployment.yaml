@@ -16,3 +16,14 @@ spec:
       containers:
         - name: test-irsa-ssm
           image: ghcr.io/avnes/test-irsa:latest
+          env:
+            - name: SUPER_SECRET_1
+              valueFrom:
+                secretKeyRef:
+                  name: k8s2aws-ssm-secret
+                  key: secret1
+            - name: SUPER_SECRET_2
+              valueFrom:
+                secretKeyRef:
+                  name: k8s2aws-ssm-secret
+                  key: secret2
