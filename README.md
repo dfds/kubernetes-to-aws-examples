@@ -31,7 +31,7 @@ In both deployment.yaml and serviceaccount.yaml you need to change `<capability-
 **Then apply it to Kubernetes:**
 
 ```bash
-kubectl apply -k k8s/
+kubectl -n <capability-namespace> apply -k k8s/
 ```
 
 **Start as shell inside the pod:**
