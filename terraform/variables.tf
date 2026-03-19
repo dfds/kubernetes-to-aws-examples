@@ -9,12 +9,6 @@ variable "account_id" {
   description = "The AWS account ID where resources will be deployed."
 }
 
-variable "prefix" {
-  type        = string
-  description = "Prefix for resource names."
-  default     = "k8s-to-aws-examples"
-}
-
 variable "kms_keys" {
   type = list(string)
   description = "A list of KMS key IDs to be accessed. Example: ['key-id1', 'key-id2']"
