@@ -29,7 +29,7 @@ locals {
   # Role names
   rds_role_name = "${local.prefix}-rds-access-role"
   s3_role_name  = "${local.prefix}-s3-access-role"
-  sm_role_name  = "${local.prefix}-sm-access-role"
+  sm_role_name  = "${local.prefix}-secretsmanager-access-role"
   ssm_role_name = "${local.prefix}-ssm-access-role"
 }
 

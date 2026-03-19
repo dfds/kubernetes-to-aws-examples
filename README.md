@@ -25,8 +25,7 @@ on darwin_arm64
 
 ## Kubernetes example
 
-In the file k8s/serviceaccount.yaml you need to change `<account-id>` to your actual numeric AWS account-id.
-In both deployment.yaml and serviceaccount.yaml you need to change `<capability-namespace>` to your actual namespace
+In the files k8s/**/serviceaccount.yaml you need to change `<account-id>` to your actual numeric AWS account-id.
 
 **Then apply it to Kubernetes:**
 
@@ -39,7 +38,7 @@ kubectl apply -k k8s/
 
 ```bash
 kubectl get pods
-kubectl exec --stdin --tty <pod-name> -- /bin/bash
+kubectl exec --stdin --tty <pod-name> -- /bin/sh
 ```
 
 **Test that you are logged on to AWS through the serviceaccount used by the pod:**
