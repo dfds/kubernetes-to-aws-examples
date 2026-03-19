@@ -31,14 +31,15 @@ In both deployment.yaml and serviceaccount.yaml you need to change `<capability-
 **Then apply it to Kubernetes:**
 
 ```bash
-kubectl -n <capability-namespace> apply -k k8s/
+kubectl config set-context --current --namespace=<capability-namespace>
+kubectl apply -k k8s/
 ```
 
 **Start as shell inside the pod:**
 
 ```bash
-kubectl -n <capability-namespace> get pods
-kubectl -n <capability-namespace> exec --stdin --tty <pod-name> -- /bin/bash
+kubectl get pods
+kubectl exec --stdin --tty <pod-name> -- /bin/bash
 ```
 
 **Test that you are logged on to AWS through the serviceaccount used by the pod:**
