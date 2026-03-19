@@ -1,99 +1,103 @@
-provider "aws" {
-  region = var.aws_region
-
-  default_tags {
-    tags = var.tags
-  }
-}
-
+# This role already exist in your capability.
+# Don't use it. By using a data source, we can copy its trust relationship and
+# use it to create new roles for other service accounts when needed.
 data "aws_iam_role" "capability_access_role" {
   name = "CapabilityAccessFromKubernetes"
 }
 
-resource "aws_iam_policy" "rds_connect_policy" {
-  name        = "${var.prefix}-rds-connect-policy"
-  description = "Policy to allow RDS connectivity for capability access role"
-  policy = templatefile("${path.module}/iam/policies/rds-connect.json", {
-    aws_region      = var.aws_region,
-    account_id      = var.account_id
-    rds_resource_id = var.rds_resource_id
-  })
-}
-
-resource "aws_iam_policy" "rds_discovery_policy" {
-  name        = "${var.prefix}-rds-discovery-policy"
-  description = "Policy to allow RDS discovery for capability access role"
-  policy = templatefile("${path.module}/iam/policies/rds-discovery.json", {
-    aws_region = var.aws_region,
-    account_id = var.account_id
-  })
-}
-
+# Your input to local variables
 locals {
-  secretsmanager_arns = formatlist("arn:aws:secretsmanager:${var.aws_region}:${var.account_id}:secret:%s", var.secretsmanager_secret_names)
-  kms_keys_arns       = formatlist("arn:aws:kms:${var.aws_region}:${var.account_id}:key/%s", var.kms_keys)
+  aws_region = "eu-west-1"
+  prefix     = "k8s2aws"
+
+  tags = {
+    "dfds.env"         = "dev"
+    "dfds.cost.centre" = "ti-platform"
+  }
 }
 
-resource "aws_iam_policy" "secretsmanager_access_policy" {
-  name        = "${var.prefix}-secretsmanager-access-policy"
-  description = "Policy to allow Secrets Manager access for capability access role"
-  policy = templatefile("${path.module}/iam/policies/secretsmanager-access.json", {
-    secretsmanager_arns = local.secretsmanager_arns
-    kms_keys_arns       = local.kms_keys_arns
-    aws_region          = var.aws_region
-  })
-}
-
+# Calculated local variables
 locals {
-  ssm_parameters = formatlist("arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter%s", var.ssm_parameters)
+  assume_role_policy_default = data.aws_iam_role.capability_access_role.assume_role_policy
+
+  # Kubernetes ServiceAccount names that will assume the various roles
+  rds_sa_name            = "${local.prefix}-rds-sa"
+  s3_sa_name             = "${local.prefix}-s3-sa"
+  secretsmanager_sa_name = "${local.prefix}-secretsmanager-sa"
+  ssm_sa_name            = "${local.prefix}-ssm-sa"
+
+  # Role names
+  rds_role_name = "${local.prefix}-rds-access-role"
+  s3_role_name  = "${local.prefix}-s3-access-role"
+  sm_role_name  = "${local.prefix}-sm-access-role"
+  ssm_role_name = "${local.prefix}-ssm-access-role"
 }
 
-resource "aws_iam_policy" "ssm_access_policy" {
-  name        = "${var.prefix}-ssm-access-policy"
-  description = "Policy to allow SSM Parameter Store access for capability access role"
-  policy = templatefile("${path.module}/iam/policies/ssm-access.json", {
-    ssm_parameters = local.ssm_parameters
-  })
+################################################################################
+### Create IRSA role for RDS access                                          ###
+### from your capability namespace in K8S to your AWS account                ###
+################################################################################
+
+module "irsa_roles_rds" {
+  source                     = "./modules/irsa-roles/rds"
+  aws_region                 = local.aws_region
+  assume_role_policy_default = local.assume_role_policy_default
+  service_account_name       = local.rds_sa_name
+  prefix                     = local.prefix
+  account_id                 = var.account_id
+  rds_resource_id            = var.rds_resource_id
+  role_name                  = local.rds_role_name
+  tags                       = local.tags
 }
 
-resource "aws_iam_policy" "s3_access_policy" {
-  name        = "${var.prefix}-s3-access-policy"
-  description = "Policy to allow S3 access for capability access role"
-  policy = templatefile("${path.module}/iam/policies/s3-access.json", {
-    s3_bucket_name = var.s3_bucket_name
-  })
+################################################################################
+### Create IRSA role for S3 access                                           ###
+### from your capability namespace in K8S to your AWS account                ###
+################################################################################
+
+module "irsa_role_s3" {
+  source                     = "./modules/irsa-roles/s3"
+  aws_region                 = local.aws_region
+  assume_role_policy_default = local.assume_role_policy_default
+  service_account_name       = local.s3_sa_name
+  prefix                     = local.prefix
+  s3_bucket_name             = var.s3_bucket_name
+  role_name                  = local.s3_role_name
+  tags                       = local.tags
+
 }
 
-resource "aws_iam_role_policy_attachment" "rds_connect" {
-  role       = data.aws_iam_role.capability_access_role.name
-  policy_arn = aws_iam_policy.rds_connect_policy.arn
+################################################################################
+### Create IRSA role for SSM Parameter Store access                          ###
+### from your capability namespace in K8S to your AWS account                ###
+################################################################################
+
+module "irsa_role_ssm_parameter_store" {
+  source                     = "./modules/irsa-roles/ssm-parameter-store"
+  aws_region                 = local.aws_region
+  assume_role_policy_default = local.assume_role_policy_default
+  service_account_name       = local.ssm_sa_name
+  prefix                     = local.prefix
+  account_id                 = var.account_id
+  ssm_parameters             = ["/test/secret1", "/test/secret2"]
+  role_name                  = local.ssm_role_name
+  tags                       = local.tags
 }
 
-resource "aws_iam_role_policy_attachment" "rds_discovery" {
-  role       = data.aws_iam_role.capability_access_role.name
-  policy_arn = aws_iam_policy.rds_discovery_policy.arn
-}
+################################################################################
+### Create IRSA role for Secrets Manager access                              ###
+### from your capability namespace in K8S to your AWS account                ###
+################################################################################
 
-resource "aws_iam_role_policy_attachment" "secretsmanager_access" {
-  role       = data.aws_iam_role.capability_access_role.name
-  policy_arn = aws_iam_policy.secretsmanager_access_policy.arn
-}
-
-resource "aws_iam_role_policy_attachment" "ssm_access" {
-  role       = data.aws_iam_role.capability_access_role.name
-  policy_arn = aws_iam_policy.ssm_access_policy.arn
-}
-
-resource "aws_iam_role_policy_attachment" "s3_access" {
-  role       = data.aws_iam_role.capability_access_role.name
-  policy_arn = aws_iam_policy.s3_access_policy.arn
-}
-
-locals {
-  service_account_for_service_1 = "capability-access-service-1"
-}
-
-resource "aws_iam_role" "my_role_1" {
-  name               = "my-role-for-service-1"
-  assume_role_policy = replace(data.aws_iam_role.capability_access_role.assume_role_policy, "capability-access", local.service_account_for_service_1)
+module "irsa_role_secrets_manager" {
+  source                      = "./modules/irsa-roles/secrets-manager"
+  aws_region                  = local.aws_region
+  assume_role_policy_default  = local.assume_role_policy_default
+  service_account_name        = local.secretsmanager_sa_name
+  prefix                      = local.prefix
+  account_id                  = var.account_id
+  secretsmanager_secret_names = var.secretsmanager_secret_names
+  kms_keys                    = var.kms_keys
+  role_name                   = local.sm_role_name
+  tags                        = local.tags
 }
