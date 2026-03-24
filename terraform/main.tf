@@ -39,15 +39,17 @@ locals {
 ################################################################################
 
 module "irsa_roles_rds" {
-  source                     = "./modules/irsa-roles/rds"
-  aws_region                 = local.aws_region
-  assume_role_policy_default = local.assume_role_policy_default
-  service_account_name       = local.rds_sa_name
-  prefix                     = local.prefix
-  account_id                 = var.account_id
-  rds_resource_id            = var.rds_resource_id
-  role_name                  = local.rds_role_name
-  tags                       = local.tags
+  source                      = "./modules/irsa-roles/rds"
+  aws_region                  = local.aws_region
+  assume_role_policy_default  = local.assume_role_policy_default
+  service_account_name        = local.rds_sa_name
+  prefix                      = local.prefix
+  account_id                  = var.account_id
+  rds_resource_id             = var.rds_resource_id
+  role_name                   = local.rds_role_name
+  secretsmanager_secret_names = var.secretsmanager_secret_names
+  kms_keys                    = var.kms_keys
+  tags                        = local.tags
 }
 
 ################################################################################

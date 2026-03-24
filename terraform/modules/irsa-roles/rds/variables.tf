@@ -33,6 +33,16 @@ variable "rds_resource_id" {
   description = "The RDS resource identifier. Example: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 }
 
+variable "kms_keys" {
+  type = list(string)
+  description = "A list of KMS key IDs to be accessed. Example: ['key-id1', 'key-id2']"
+}
+
+variable "secretsmanager_secret_names" {
+  type = list(string)
+  description = "A list of Secrets Manager secret names to be accessed. Example: ['secret-name1', 'secret-name2']"
+}
+
 variable "tags" {
   type        = map(string)
   description = "A map of tags to assign to resources."
