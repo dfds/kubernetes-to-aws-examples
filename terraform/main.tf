@@ -12,7 +12,7 @@ locals {
 
   tags = {
     "dfds.env"         = "dev"
-    "dfds.cost.centre" = "ti-platform"
+    "dfds.cost.centre" = "ti-cae"
   }
 }
 
